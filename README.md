@@ -37,7 +37,7 @@ Un mismo archivo `.txt` puede mezclar salidas de varias herramientas — el moto
 Requiere Python 3.8+ (sin dependencias externas — solo librería estándar).
 
 ```bash
-git clone https://github.com/TU_USUARIO/reportsee.git
+git clone https://github.com/blaCKberrY7891/reportsee.git
 cd reportsee
 chmod +x reportsee.py
 sudo ln -s "$(pwd)/reportsee.py" /usr/local/bin/reportsee
