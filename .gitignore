@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Salidas de prueba (no subir reportes reales de clientes/labs)
+*.txt
+!README.txt
+reporte*.md
+salida*.md
+
+# Excepciones: sí queremos versionar estos .txt de ejemplo si algún día se agregan
+!examples/**/*.txt

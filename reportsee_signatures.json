@@ -1,0 +1,278 @@
+{
+  "version_cve_db": [
+    {
+      "pattern": "vsftpd\\s*2\\.3\\.4",
+      "severity": "CRITICO",
+      "title": "vsftpd 2.3.4 - Backdoor conocido",
+      "detail": "Esta version contiene un backdoor (smiley face) que abre un shell en el puerto 6200 al enviar ':)' como parte del usuario. Exploit publico disponible.",
+      "cve": "CVE-2011-2523"
+    },
+    {
+      "pattern": "ProFTPD\\s*1\\.3\\.5",
+      "severity": "ALTO",
+      "title": "ProFTPD 1.3.5 - mod_copy RCE",
+      "detail": "El modulo mod_copy permite copiar archivos via comandos FTP sin autenticacion previa, lo que puede derivar en RCE si se puede escribir en el docroot web.",
+      "cve": "CVE-2015-3306"
+    },
+    {
+      "pattern": "(Apache[- ]?Coyote|Tomcat).*?/?(8\\.5\\.[0-9]{1,2}|9\\.0\\.[0-9]{1,2})",
+      "severity": "ALTO",
+      "title": "Posible Tomcat vulnerable a Ghostcat",
+      "detail": "Si el puerto AJP 8009 esta expuesto, versiones de Tomcat anteriores a 9.0.31/8.5.51/7.0.100 permiten lectura de archivos arbitrarios (y en algunos casos RCE) via el protocolo AJP.",
+      "cve": "CVE-2020-1938"
+    },
+    {
+      "pattern": "ajp13|8009/tcp",
+      "severity": "ALTO",
+      "title": "Puerto AJP 8009 expuesto (Ghostcat)",
+      "detail": "El conector AJP de Tomcat esta accesible. Verifica la version exacta de Tomcat; si es anterior a 9.0.31/8.5.51/7.0.100, es explotable con CVE-2020-1938.",
+      "cve": "CVE-2020-1938"
+    },
+    {
+      "pattern": "Samba\\s*3\\.0\\.[0-9]{1,2}(?!\\d)",
+      "severity": "CRITICO",
+      "title": "Samba 3.0.x - usermap_script RCE",
+      "detail": "Versiones vulnerables permiten inyectar comandos de shell a traves del parametro 'username map script'. RCE sin autenticacion en muchos casos.",
+      "cve": "CVE-2007-2447"
+    },
+    {
+      "pattern": "OpenSSH\\s*[1-6]\\.\\d|OpenSSH\\s*7\\.[0-7](?!\\d)",
+      "severity": "MEDIO",
+      "title": "OpenSSH < 7.7 - enumeracion de usuarios",
+      "detail": "Vulnerable a enumeracion de usuarios validos por diferencia de tiempo/respuesta en la autenticacion. Util para construir wordlists de usuarios.",
+      "cve": "CVE-2018-15473"
+    },
+    {
+      "pattern": "Microsoft.?-?IIS/6\\.0",
+      "severity": "CRITICO",
+      "title": "IIS 6.0 - WebDAV / ScStoragePathFromUrl RCE",
+      "detail": "IIS 6.0 con WebDAV habilitado es vulnerable a buffer overflow remoto.",
+      "cve": "CVE-2017-7269"
+    },
+    {
+      "pattern": "smb.*(1\\.0|SMBv1)|Windows 7|Windows Server 2008",
+      "severity": "ALTO",
+      "title": "Posible SMBv1 activo (EternalBlue)",
+      "detail": "Hosts Windows antiguos suelen tener SMBv1 habilitado por defecto. Verificar con smbclient/nmap --script smb-protocols si aplica MS17-010 (EternalBlue).",
+      "cve": "CVE-2017-0144"
+    },
+    {
+      "pattern": "PHP/5\\.[0-4]",
+      "severity": "MEDIO",
+      "title": "PHP 5.x obsoleto",
+      "detail": "Version de PHP sin soporte con multiples CVEs publicos segun los modulos activos. Revisar CGI/mod_php expuesto.",
+      "cve": ""
+    },
+    {
+      "pattern": "DrayTek|RomPager|GoAhead",
+      "severity": "MEDIO",
+      "title": "Firmware embebido detectado",
+      "detail": "Software de dispositivos embebidos, historicamente con multiples CVEs de auth bypass. Buscar el modelo/version exacta en searchsploit.",
+      "cve": ""
+    }
+  ],
+  "tools": [
+    {
+      "name": "enum4linux",
+      "detect_regex": "Enum4linux|enum4linux-ng",
+      "rules": [
+        {
+          "regex": "Domain Name:\\s*(\\S+)",
+          "severity": "INFO",
+          "category": "SMB",
+          "title": "Dominio SMB identificado",
+          "detail": "Dominio/Workgroup: {1}"
+        },
+        {
+          "regex": "Domain Sid:\\s*(\\S+)",
+          "severity": "INFO",
+          "category": "SMB",
+          "title": "Domain SID identificado",
+          "detail": "SID: {1}"
+        },
+        {
+          "regex": "allows sessions using username '',\\s*password ''",
+          "severity": "ALTO",
+          "category": "SMB",
+          "title": "Sesion nula (null session) permitida",
+          "detail": "El servidor SMB permite autenticacion anonima. Esto habilita enumeracion de shares, usuarios y politicas sin credenciales."
+        },
+        {
+          "regex": "user:\\[(\\S+)\\]\\s*rid:\\[(0x[0-9a-fA-F]+)\\]",
+          "severity": "BAJO",
+          "category": "SMB",
+          "title": "Usuario enumerado (RID cycling)",
+          "detail": "Usuario: {1} (RID {2})"
+        },
+        {
+          "regex": "index:\\s*0x[0-9a-fA-F]+\\s+RID:\\s*\\d+\\s+acb:\\s*\\S+\\s+Account:\\s*(\\S+)",
+          "severity": "BAJO",
+          "category": "SMB",
+          "title": "Usuario enumerado (RID cycling)",
+          "detail": "Usuario: {1}"
+        }
+      ]
+    },
+    {
+      "name": "smbmap/smbclient",
+      "detect_regex": "smbmap|Disk\\s*\\|\\s*Permissions|Sharename\\s+Type",
+      "rules": [
+        {
+          "regex": "(\\S+)\\s+READ,\\s*WRITE",
+          "severity": "ALTO",
+          "category": "SMB",
+          "title": "Share SMB con permisos de escritura",
+          "detail": "Share '{1}' permite lectura y escritura. Riesgo de subir un webshell o payload si el share es accesible desde un servicio web."
+        },
+        {
+          "regex": "(\\S+)\\s+READ ONLY",
+          "severity": "INFO",
+          "category": "SMB",
+          "title": "Share SMB de solo lectura",
+          "detail": "Share '{1}' accesible en modo lectura."
+        },
+        {
+          "regex": "Guest session|anonymous login granted|Anonymous login successful",
+          "severity": "ALTO",
+          "category": "SMB",
+          "title": "Acceso anonimo/invitado permitido en SMB",
+          "detail": "Se pudo autenticar sin credenciales validas."
+        }
+      ]
+    },
+    {
+      "name": "crackmapexec/netexec",
+      "detect_regex": "crackmapexec|CrackMapExec|netexec|NetExec",
+      "rules": [
+        {
+          "regex": "\\(Pwn3d!\\)",
+          "severity": "CRITICO",
+          "category": "Post-Explotacion",
+          "title": "Host comprometido confirmado",
+          "detail": "CrackMapExec/NetExec confirmo acceso administrativo (marca Pwn3d!) en este host."
+        },
+        {
+          "regex": "SMBv1:True",
+          "severity": "ALTO",
+          "category": "SMB",
+          "title": "SMBv1 habilitado",
+          "detail": "Protocolo SMBv1 activo, obsoleto e inseguro. Candidato a EternalBlue si el parche MS17-010 no esta aplicado."
+        },
+        {
+          "regex": "signing:False",
+          "severity": "MEDIO",
+          "category": "SMB",
+          "title": "SMB signing deshabilitado",
+          "detail": "Sin firma SMB el trafico es vulnerable a ataques de relay (NTLM relay)."
+        }
+      ]
+    },
+    {
+      "name": "hashcat",
+      "detect_regex": "hashcat|Session\\.+:",
+      "rules": [
+        {
+          "regex": "Recovered\\.+:\\s*(\\d+)/(\\d+)",
+          "severity": "INFO",
+          "category": "Credenciales",
+          "title": "Resumen de cracking hashcat",
+          "detail": "Hashes recuperados: {1} de {2}."
+        },
+        {
+          "regex": "Status\\.+:\\s*Cracked",
+          "severity": "CRITICO",
+          "category": "Credenciales",
+          "title": "Hash crackeado con hashcat",
+          "detail": "hashcat marco al menos un hash como Cracked. Revisar el archivo --show / potfile para obtener el texto en claro."
+        }
+      ]
+    },
+    {
+      "name": "whatweb",
+      "detect_regex": "WhatWeb|\\[\\d{3}\\s+OK\\]",
+      "rules": [
+        {
+          "regex": "WordPress\\[([\\d\\.]+)\\]",
+          "severity": "MEDIO",
+          "category": "Web",
+          "title": "WordPress detectado",
+          "detail": "Version {1}. Correlacionar con wpscan para plugins/temas vulnerables."
+        },
+        {
+          "regex": "Drupal\\[([\\d\\.]+)\\]",
+          "severity": "MEDIO",
+          "category": "Web",
+          "title": "Drupal detectado",
+          "detail": "Version {1}. Revisar CVEs conocidos de Drupalgeddon si es menor a 8.6."
+        },
+        {
+          "regex": "Joomla\\[([\\d\\.]+)\\]",
+          "severity": "MEDIO",
+          "category": "Web",
+          "title": "Joomla detectado",
+          "detail": "Version {1}."
+        }
+      ]
+    },
+    {
+      "name": "wpscan",
+      "detect_regex": "WPScan|wpscan\\.com",
+      "rules": [
+        {
+          "regex": "\\[!\\]\\s*Title:\\s*(.+)",
+          "severity": "ALTO",
+          "category": "Web",
+          "title": "Vulnerabilidad reportada por WPScan",
+          "detail": "{1}"
+        },
+        {
+          "regex": "XML-RPC seems to be enabled",
+          "severity": "MEDIO",
+          "category": "Web",
+          "title": "XML-RPC habilitado en WordPress",
+          "detail": "Puede facilitar fuerza bruta amplificada o pingback abuse."
+        },
+        {
+          "regex": "[Uu]ser.?[Ee]numeration",
+          "severity": "MEDIO",
+          "category": "Web",
+          "title": "Enumeracion de usuarios posible en WordPress",
+          "detail": "El endpoint permite enumerar nombres de usuario validos."
+        }
+      ]
+    },
+    {
+      "name": "dnsrecon/dnsenum",
+      "detect_regex": "dnsrecon|dnsenum|DNSRecon",
+      "rules": [
+        {
+          "regex": "\\[\\*\\]\\s*([\\w\\.-]+\\.[a-zA-Z]{2,})\\s+(\\d{1,3}(?:\\.\\d{1,3}){3})",
+          "severity": "INFO",
+          "category": "DNS",
+          "title": "Subdominio identificado",
+          "detail": "{1} -> {2}"
+        },
+        {
+          "regex": "[Zz]one [Tt]ransfer.*[Ss]uccess",
+          "severity": "CRITICO",
+          "category": "DNS",
+          "title": "Transferencia de zona DNS exitosa (AXFR)",
+          "detail": "El servidor DNS permitio una transferencia de zona completa, exponiendo el mapa interno de subdominios/IPs."
+        }
+      ]
+    },
+    {
+      "name": "searchsploit",
+      "detect_regex": "Exploit Title\\s*\\|",
+      "rules": [
+        {
+          "regex": "^(.{10,80}?)\\s*\\|\\s*(\\S+/\\S+)\\s*$",
+          "severity": "INFO",
+          "category": "Exploits",
+          "title": "Exploit disponible en searchsploit",
+          "detail": "{1} -> ruta: {2}. Confirmar aplicabilidad exacta a la version detectada antes de usar."
+        }
+      ]
+    }
+  ]
+}
